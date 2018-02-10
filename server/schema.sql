@@ -23,8 +23,11 @@ CREATE TABLE messages (
 );
 
 INSERT INTO rooms(roomname) VALUES ('lobby');
+INSERT INTO rooms(roomname) VALUES ('kitchen');
 INSERT INTO users(username) VALUES ('bob');
+INSERT INTO users(username) VALUES ('carol');
 INSERT INTO messages(text, room_id, user_id) VALUES ('sunnnnny dayyyyyss', 1, 1);
+INSERT INTO messages(text, room_id, user_id) VALUES ('hey girl', 2, 2);
 
 /*  Execute this file from the command line by typing:
  *    mysql -u root < server/schema.sql

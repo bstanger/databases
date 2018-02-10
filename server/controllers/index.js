@@ -14,7 +14,7 @@ module.exports = {
     get: function (req, res) {
       models.messages.get()
         .then(function(results) {
-          console.log('success!', results);
+          //console.log('success!', results);
           res.setHeader('Content-Type', 'application/json');
           res.send(results);
         }).catch(function(error) {
