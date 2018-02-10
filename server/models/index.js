@@ -35,7 +35,6 @@ module.exports = {
                 }).catch(function(err) {
                   reject(err);
                 }).then(function() {
-                  //console.log(data);
                   resolve(data);
                 })
               );
@@ -44,16 +43,27 @@ module.exports = {
       });
     }, // a function which produces all the messages
     post: function (reqBody) {
-      console.log(reqBody);
+      var userIdInput;
+      var roomIdInput;
       return new Promise(function(resolve, reject) {
         module.exports.users.post(reqBody.username)
-          .then(
-          ).catch(
-          );
-        // post to users, return id
-        // post to rooms, return id
-        // query to messages table, insert message
-        resolve();
+          .then(function(userId) {
+            userIdInput = userId[0].id;
+            // post to users, return id
+          }).catch(function(err) {
+            reject(err);
+          }).then(module.exports.rooms.post(reqBody.roomname)
+            .then(function(roomId) {
+              roomIdInput = roomId[0].id;
+              // post to rooms, return id
+            }).catch(function(err) {
+              reject(err);
+            }).then(function() {
+              // query to messages table, insert message
+              var queryInsertMsg = `INSERT INTO messages(text, room_id, user_id) VALUES ('${reqBody.text}', ${roomIdInput}, ${userIdInput});`;
+              con.query(queryInsertMsg);
+              resolve();
+            }));
       });
     } // a function which can be used to insert a message into the database
   },
@@ -71,16 +81,12 @@ module.exports = {
       });
     }, // a function which produces all the users
     post: function (username) {
-      console.log(username);
       return new Promise(function(resolve, reject) {
         var queryUniqName = `INSERT INTO users(username) SELECT * FROM (SELECT '${username}') AS tmp WHERE NOT EXISTS (SELECT username from users WHERE username = '${username}') LIMIT 1;`;
-        con.query(queryUniqName, function(err) {
-          if (err) {
-            console.log(err);
-            reject(err);
-          } else {
-            resolve();
-          }
+        var queryUserId = `SELECT id FROM users WHERE username = '${username}';`;
+        con.query(queryUniqName);
+        con.query(queryUserId, function(err, result) {
+          resolve(result);
         });
       });
     } // a function which can be used to insert a user into the database
@@ -98,7 +104,15 @@ module.exports = {
         });
       });
     },
-    post: function() {
+    post: function(roomname) {
+      return new Promise(function(resolve, reject) {
+        var queryUniqRoom = `INSERT INTO rooms(roomname) SELECT * FROM (SELECT '${roomname}') AS tmp WHERE NOT EXISTS (SELECT roomname from rooms WHERE roomname = '${roomname}') LIMIT 1;`;
+        var queryRoomId = `SELECT id FROM rooms WHERE roomname = '${roomname}';`;
+        con.query(queryUniqRoom);
+        con.query(queryRoomId, function(err, result) {
+          resolve(result);
+        });
+      });
     },
   }
 };
