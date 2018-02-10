@@ -1,4 +1,16 @@
 var db = require('../db');
+// var con = db.connection();
+
+
+// var connectToDB = () => {
+//   return new Promise(function(resolve, reject) {
+//     con.connect(function(err) {
+//       if (err) {
+//         reject(err);
+//       }
+//     }
+//   }); 
+// };
 
 module.exports = {
   messages: {
@@ -9,7 +21,7 @@ module.exports = {
           if (err) {
             reject(err);
           }
-          con.query('SELECT * FROM messages', function(err, results) {
+          con.query('select * from messages INNER JOIN users ON messages.user_id = users.id;', function(err, results) {
             if (err) {
               reject(err);
             } else {
@@ -26,7 +38,22 @@ module.exports = {
 
   users: {
     // Ditto as above.
-    get: function () {}, // a function which produces all the users
+    get: function (userId) {
+      // return new Promise(function(resolve, reject) {
+      //   con.connect(function(err) {
+      //     if (err) {
+      //       reject(err);
+      //     }
+      //     con.query('SELECT name FROM users WHERE id = ' + userId, function(err, results) {
+      //       if (err) {
+      //         reject(err);
+      //       } else {
+      //         resolve(results);
+      //       }
+      //     });
+      //   });
+      // });
+    }, // a function which produces all the users
     post: function () {} // a function which can be used to insert a user into the database
   }
 };

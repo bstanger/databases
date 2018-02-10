@@ -12,29 +12,14 @@ var headers = {
 module.exports = {
   messages: {
     get: function (req, res) {
-      console.log(req.query);
-      // res.status(200);
-      // res.send();
-      //res.sendFile(path.join(__dirname + '/../../client/index.html'));
-      // models.messages.get(function(results) {
-      //   console.log(results);
-      //   res.send(results);
-      // });
       models.messages.get()
         .then(function(results) {
           console.log('success!', results);
-          //res.status(200);
           res.setHeader('Content-Type', 'application/json');
           res.send(results);
         }).catch(function(error) {
           console.log(error);
         });
-      // models.get()
-      //   .then((data) =>
-      //     console.log(data)
-      //   ).catch( (err) => 
-      //     console.log(err)
-      //   );
     }, // a function which handles a get request for all messages
     post: function (req, res) {
       console.log(req.query); 
