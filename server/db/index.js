@@ -1,19 +1,33 @@
-var mysql = require('mysql');
+var Sequelize = require('sequelize');
+var db = new Sequelize('chats', 'student', 'student');
 
-// Create a database connection and export it from this file.
-// You will need to connect with the user "root", no password,
-// and to the database "chat".
+///////////
 
-exports.connection = function() {
-  var connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'student',
-    password: 'student',
-    database: 'chat'
-  });
+var Users = db.define('users', {
+  username: Sequelize.STRING
+});
 
-  return connection;
-};
+var Rooms = db.define('rooms', {
+  roomname: Sequelize.STRING
+});
 
+var Messages = db.define('messages', {
+  userid: Sequelize.INTEGER,
+  text: Sequelize.STRING,
+  roomname: Sequelize.STRING
+});
 
+///////////
 
+Users.hasMany(Messages);
+Rooms.hasMany(Messages);
+Messages.belongsTo(Users);
+Messages.belongsTo(Rooms);
+
+Users.sync();
+Rooms.sync();
+Messages.sync();
+
+exports.Users = Users;
+exports.Rooms = Rooms;
+exports.Messages = Messages;
