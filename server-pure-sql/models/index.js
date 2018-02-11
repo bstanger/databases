@@ -21,8 +21,6 @@ module.exports = {
                   });
                   messageObj.username = matchingUser.username;
                 });
-              }).catch(function(err) {
-                reject(err);
               }).then(module.exports.rooms.get()
                 .then(function(roomResults) {
                   data.results.map( messageObj => {
@@ -32,10 +30,10 @@ module.exports = {
                     });
                     messageObj.roomname = matchingRoom.roomname;
                   });
-                }).catch(function(err) {
-                  reject(err);
                 }).then(function() {
                   resolve(data);
+                }).catch(function(err) {
+                  reject(err);
                 })
               );
           }
@@ -47,22 +45,17 @@ module.exports = {
       var roomIdInput;
       return new Promise(function(resolve, reject) {
         module.exports.users.post(reqBody.username)
-          .then(function(userId) {
+          .then(function(userId) { // post to users, return id
             userIdInput = userId[0].id;
-            // post to users, return id
-          }).catch(function(err) {
-            reject(err);
           }).then(module.exports.rooms.post(reqBody.roomname)
-            .then(function(roomId) {
+            .then(function(roomId) { // post to rooms, return id
               roomIdInput = roomId[0].id;
-              // post to rooms, return id
-            }).catch(function(err) {
-              reject(err);
-            }).then(function() {
-              // query to messages table, insert message
+            }).then(function() { // query to messages table, insert message
               var queryInsertMsg = `INSERT INTO messages(text, room_id, user_id) VALUES ('${reqBody.text}', ${roomIdInput}, ${userIdInput});`;
               con.query(queryInsertMsg);
               resolve();
+            }).catch(function(err) {
+              reject(err);
             }));
       });
     } // a function which can be used to insert a message into the database
@@ -86,7 +79,11 @@ module.exports = {
         var queryUserId = `SELECT id FROM users WHERE username = '${username}';`;
         con.query(queryUniqName);
         con.query(queryUserId, function(err, result) {
-          resolve(result);
+          if (err) {
+            reject(err);
+          } else {
+            resolve(result);
+          }
         });
       });
     } // a function which can be used to insert a user into the database
@@ -110,7 +107,11 @@ module.exports = {
         var queryRoomId = `SELECT id FROM rooms WHERE roomname = '${roomname}';`;
         con.query(queryUniqRoom);
         con.query(queryRoomId, function(err, result) {
-          resolve(result);
+          if (err) {
+            reject(err);
+          } else {
+            resolve(result);
+          }
         });
       });
     },
