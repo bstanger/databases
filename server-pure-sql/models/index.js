@@ -5,7 +5,7 @@ module.exports = {
   messages: {
     get: function () {
       return new Promise(function(resolve, reject) {
-        con.query('select * from messages;', function(err, results) {
+        con.query('SELECT * FROM messages;', function(err, results) {
           if (err) {
             reject(err);
           } else {
@@ -45,12 +45,15 @@ module.exports = {
       var roomIdInput;
       return new Promise(function(resolve, reject) {
         module.exports.users.post(reqBody.username)
-          .then(function(userId) { // post to users, return id
+          .then(function(userId) {
             userIdInput = userId[0].id;
+            // post to users, return id
           }).then(module.exports.rooms.post(reqBody.roomname)
-            .then(function(roomId) { // post to rooms, return id
+            .then(function(roomId) {
               roomIdInput = roomId[0].id;
-            }).then(function() { // query to messages table, insert message
+              // post to rooms, return id
+            }).then(function() {
+              // query to messages table, insert message
               var queryInsertMsg = `INSERT INTO messages(text, room_id, user_id) VALUES ('${reqBody.text}', ${roomIdInput}, ${userIdInput});`;
               con.query(queryInsertMsg);
               resolve();
@@ -75,7 +78,11 @@ module.exports = {
     }, // a function which produces all the users
     post: function (username) {
       return new Promise(function(resolve, reject) {
-        var queryUniqName = `INSERT INTO users(username) SELECT * FROM (SELECT '${username}') AS tmp WHERE NOT EXISTS (SELECT username from users WHERE username = '${username}') LIMIT 1;`;
+        var queryUniqName = `INSERT INTO users(username) \
+        SELECT * FROM (SELECT '${username}') AS tmp \
+        WHERE NOT EXISTS \
+        (SELECT username from users WHERE username = '${username}') \
+        LIMIT 1;`;
         var queryUserId = `SELECT id FROM users WHERE username = '${username}';`;
         con.query(queryUniqName);
         con.query(queryUserId, function(err, result) {
@@ -103,7 +110,10 @@ module.exports = {
     },
     post: function(roomname) {
       return new Promise(function(resolve, reject) {
-        var queryUniqRoom = `INSERT INTO rooms(roomname) SELECT * FROM (SELECT '${roomname}') AS tmp WHERE NOT EXISTS (SELECT roomname from rooms WHERE roomname = '${roomname}') LIMIT 1;`;
+        var queryUniqRoom = `INSERT INTO rooms(roomname) \
+        SELECT * FROM (SELECT '${roomname}') AS tmp \
+        WHERE NOT EXISTS (SELECT roomname from rooms WHERE roomname = '${roomname}') \
+        LIMIT 1;`;
         var queryRoomId = `SELECT id FROM rooms WHERE roomname = '${roomname}';`;
         con.query(queryUniqRoom);
         con.query(queryRoomId, function(err, result) {
